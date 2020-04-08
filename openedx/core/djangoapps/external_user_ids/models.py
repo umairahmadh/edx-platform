@@ -3,7 +3,6 @@ Models for External User Ids that are sent out of Open edX
 """
 
 import uuid as uuid_tools
-
 from logging import getLogger
 
 from django.contrib.auth.models import User
@@ -27,6 +26,9 @@ class ExternalIdType(TimeStampedModel):
     description = models.TextField()
     history = HistoricalRecords()
 
+    class Meta:
+        app_label = 'external_user_ids'
+
     def __str__(self):
         return self.name
 
@@ -48,6 +50,7 @@ class ExternalId(TimeStampedModel):
 
     class Meta(object):
         unique_together = (('user', 'external_id_type'),)
+        app_label = 'external_user_ids'
 
     @classmethod
     def user_has_external_id(cls, user, type_name):
@@ -67,12 +70,13 @@ class ExternalId(TimeStampedModel):
         return True
 
     @classmethod
-    def add_new_user_id(cls, user, type_name):
+    def add_new_user_id(cls, user, type_name, create_type=False):
         """
         Creates an ExternalId for the User of the type_name provided
         Arguments:
             user: User to create the ID for
             type_name (str): Name of the type of ExternalId
+            create_type (bool): Whether to create the type if it doesn't exist
         Returns:
             (ExternalId): Returns the external id that was created or retrieved
             (Bool): True if the External ID was created, False if it already existed
@@ -80,13 +84,16 @@ class ExternalId(TimeStampedModel):
         try:
             type_obj = ExternalIdType.objects.get(name=type_name)
         except ExternalIdType.DoesNotExist:
-            LOGGER.info(
-                'External ID Creation failed for user {user}, no external id type of {type}'.format(
-                    user=user.id,
-                    type=type_name
+            if create_type:
+                type_obj = ExternalIdType.objects.get_or_create(name=type_name, description='auto generated')[0]
+            else:
+                LOGGER.info(
+                    'External ID Creation failed for user {user}, no external id type of {type}'.format(
+                        user=user.id,
+                        type=type_name
+                    )
                 )
-            )
-            return None
+                return None
         external_id, created = cls.objects.get_or_create(
             user=user,
             external_id_type=type_obj
