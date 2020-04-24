@@ -38,8 +38,11 @@ class DjangoXBlockUserService(UserService):
     def get_external_user_id(self, type_name):
         """
         Returns an external user id of the given type.
+        Raises ValueError if the type doesn't exist.
         """
-        external_id, _ = ExternalId.add_new_user_id(self._django_user, type_name, create_type=True)
+        external_id, _ = ExternalId.add_new_user_id(self._django_user, type_name)
+        if not external_id:
+            raise ValueError("External ID type: %s does not exist" % type_name)
         return str(external_id.external_user_id)
 
     def get_anonymous_user_id(self, username, course_id):

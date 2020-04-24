@@ -21,6 +21,7 @@ class ExternalIdType(TimeStampedModel):
     .. no_pii:
     """
     MICROBACHELORS_COACHING = 'mb_coaching'
+    LTI = 'lti'
 
     name = models.CharField(max_length=32, blank=False, unique=True, db_index=True)
     description = models.TextField()
@@ -70,13 +71,12 @@ class ExternalId(TimeStampedModel):
         return True
 
     @classmethod
-    def add_new_user_id(cls, user, type_name, create_type=False):
+    def add_new_user_id(cls, user, type_name):
         """
         Creates an ExternalId for the User of the type_name provided
         Arguments:
             user: User to create the ID for
             type_name (str): Name of the type of ExternalId
-            create_type (bool): Whether to create the type if it doesn't exist
         Returns:
             (ExternalId): Returns the external id that was created or retrieved
             (Bool): True if the External ID was created, False if it already existed
@@ -84,16 +84,13 @@ class ExternalId(TimeStampedModel):
         try:
             type_obj = ExternalIdType.objects.get(name=type_name)
         except ExternalIdType.DoesNotExist:
-            if create_type:
-                type_obj = ExternalIdType.objects.get_or_create(name=type_name, description='auto generated')[0]
-            else:
-                LOGGER.info(
-                    'External ID Creation failed for user {user}, no external id type of {type}'.format(
-                        user=user.id,
-                        type=type_name
-                    )
+            LOGGER.info(
+                'External ID Creation failed for user {user}, no external id type of {type}'.format(
+                    user=user.id,
+                    type=type_name
                 )
-                return None
+            )
+            return None, False
         external_id, created = cls.objects.get_or_create(
             user=user,
             external_id_type=type_obj

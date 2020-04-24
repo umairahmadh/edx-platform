@@ -7,6 +7,7 @@ from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 
 from openedx.core.djangoapps.user_api.preferences.api import set_user_preference
+from openedx.core.djangoapps.external_user_ids.models import ExternalIdType
 from student.models import anonymous_id_for_user
 from student.tests.factories import AnonymousUserFactory, UserFactory
 from xblock_django.user_service import (
@@ -120,7 +121,11 @@ class UserServiceTestCase(TestCase):
         """
         Tests that external ids differ based on type.
         """
+        ExternalIdType.objects.create(name='test1')
+        ExternalIdType.objects.create(name='test2')
         django_user_service = DjangoXBlockUserService(self.user, user_is_staff=True)
         ext_id1 = django_user_service.get_external_user_id('test1')
         ext_id2 = django_user_service.get_external_user_id('test2')
         assert ext_id1 != ext_id2
+        with self.assertRaises(ValueError):
+            django_user_service.get_external_user_id('unknown')
