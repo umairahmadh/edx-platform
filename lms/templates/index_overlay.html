@@ -1,10 +1,2 @@
-<%page expression_filter="h"/>
-
-<%!
-from django.utils.translation import ugettext as _
-from openedx.core.djangolib.markup import HTML, Text
-%>
-
-<h1>${Text(_(u"{platform_name}")).format(platform_name=settings.PLATFORM_NAME)}</h1>
-## Translators: 'Open edX' is a registered trademark, please keep this untranslated. See http://open.edx.org for more information.
-<p>${Text(_("Learn at your own convenience\r\nඔබේ පහසුව අනුව ඉගෙන ගන්න\r\nஉங்கள் வசதிக்கேற்றாற்போல கற்றிடுங்கள்{registered_trademark}")).format(registered_trademark=HTML("<sup style='font-size: 65%'>&reg;</sup>"))}</p>
+<h1>${settings.PLATFORM_NAME}</h1>
+<p>Learn at your own convenience<br>ඔබේ පහසුව අනුව ඉගෙන ගන්න<br>உங்கள் வசதிக்கேற்றாற்போல கற்றிடுங்கள்</p>
