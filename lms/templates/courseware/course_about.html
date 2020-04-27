@@ -124,7 +124,7 @@ from six import string_types
             ${_("Course is full")}
           </span>
         % elif invitation_only and not can_enroll:
-          <span class="register disabled">${_("Enrollment in this course is by invitation only")}</span>
+          <a href="https://www.pledu.lk"><span class="register disabled">${_("Go to PLEdu.lk and Purchase the Course")}</span></a>
         ## Shib courses need the enrollment button to be displayed even when can_enroll is False,
         ## because AnonymousUsers cause can_enroll for shib courses to be False, but we need them to be able to click
         ## so that they can register and become a real user that can enroll.
